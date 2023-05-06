@@ -2,7 +2,7 @@
 var bcrypt        = require('bcrypt');
 const db          = require('../models');
 
-const { Rooms } = require('../models');
+const { Rooms , Buildings } = require('../models');
 
 
 module.exports = (router, passport ,isLoggedIn) => {
@@ -75,12 +75,27 @@ module.exports = (router, passport ,isLoggedIn) => {
       try {
         const rooms = await Rooms.findAll();
         // res.render('rooms', { rooms });
-        res.render('temp_dashboard', { rooms });
+        res.render('dashboard', { rooms });
       } catch (error) {
         console.error(error); //NEEDED TO BE CATCHED CUSTOM-ly
       }
 
     });
+
+    router.get('/monitoring' , isLoggedIn , async (req, res, next) => {
+      // res.render('temp_dashboard', );
+
+      try {
+        const rooms = await Rooms.findAll();
+        const buildings = await Buildings.findAll();
+        
+        res.render('monitoring', { rooms , buildings });
+      } catch (error) {
+        console.error(error); //NEEDED TO BE CATCHED CUSTOM-ly
+      }
+
+    });
+
 
     
 

@@ -51,7 +51,7 @@ const Buildings = models.Buildings;
 //   })
 
 
-//COPY PASTE FROM OTHER FILES: 
+//COPY PASTE FROM OTHER FILES (Every piece of code that I want to delete but dont want to lose): 
 
 //   <h2>${data.roomName}</h2>
 
@@ -66,3 +66,14 @@ const Buildings = models.Buildings;
 //       }).catch(error => {
 //         // Handle error
 //       });
+
+/*{ <div id="room-cards" class="card-deck">
+            <% rooms.forEach((room) => { %>
+                <div class="card mb-4" id="room-card-<%= room.id %>" style="display:none;">
+                    <div class="card-header"><%= room.room_name %></div>
+                    <div class="card-body">
+                        <p><%= room.room_desc %></p>
+                    </div>
+                </div>
+            <% }); %>
+        </div> }*/

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/temp_style.css">
+</head>
+<body>
+    <a href="/logout">logout</a>
+
+<div id="data-container">
+  <%  rooms.forEach((room) => {  %>
+    <h2>Room Name: <%= room.room_name  %></h2>
+    <div id="device-<%= room.device_id  %>" class="card">
+      
+    </div>
+  <% }); %>
+
+</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Listen for data from server
+    socket.on('data', (data) => {
+      console.log('Data received:', data);
+
+      
+
+      // Create or update div card for each device
+      const cardId = 'device-' + data.device_id;
+      let card = document.getElementById(cardId);
+      if (!card) {
+        card = document.createElement('div');
+        card.id = cardId;
+        card.classList.add('card');
+        document.getElementById('data-container').appendChild(card);
+      }
+      card.innerHTML = `
+        <p>Sensor ID: ${data.device_id}</p>
+        <p>Temperature: ${data.temperature}</p>
+        <p>Humidity: ${data.humidity}</p>
+        <p>Air Quality: ${data.airQuality}</p>
+      `;
+    });
+
+  </script>
+
+</body>
+</html>

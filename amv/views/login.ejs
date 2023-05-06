@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/login_style.css" type="text/css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+      <h1>Login</h1>
+      <form action="/login" method="post">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" />
+
+        <label for="password">Password</label>
+        <div class="input-group">
+          <input type="password" id="password" name="password" />
+          <span class="show-hide" onclick="togglePassword()">Show</span>
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <script>
+      function togglePassword() {
+        var x = document.getElementById("password");
+        if (x.type === "password") {
+          x.type = "text";
+          document.querySelector(".show-hide").textContent = "Hide";
+        } else {
+          x.type = "password";
+          document.querySelector(".show-hide").textContent = "Show";
+        }
+      }
+    </script>
+  </body>
+</html>

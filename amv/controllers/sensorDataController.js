@@ -278,6 +278,10 @@ const myInterval = setInterval(getData, 10000);
 
     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 
+    const tempertaureArray = [];
+    const humidityArray = [];
+    const airQualityArray = [];
+
     const rooms = await db.Rooms.findAll();
 
     const fiveSecondsAgo = new Date(Date.now() - 5000); // 5 seconds ago
@@ -288,12 +292,271 @@ const myInterval = setInterval(getData, 10000);
           }
         }
       });
-      console.log(data);
+      console.log(rooms);
+      // console.log(data);
 
       console.log("_________________________");
 
-}
+      for( const room of rooms ){
+        let tempArray = [];
+        let humidArray = [];
+        let airqualArray = [];
+
+        for( const dataa of data ){
+          let temp = validateTemperatureLevels(dataa.temperature)
+          let humid = validateHumidityLevels(dataa.humidity);
+          let airqual = validateAirQualityLevels(dataa.air_quality);
+
+
+          if(room.device_id == dataa.device_id){
+            if(temp != 1){
+              tempArray.push(temp);
+              console.log("temp pushed");
+            } else {
+              tempArray = [];
+            }
+
+            if(humid != 1){
+              humidArray.push(humid);
+              console.log("humid pushed");
+            } else {
+              humidArray = [];
+            }
+
+            if(airqual != 0){
+              airqualArray.push(airqual);
+              console.log("airqual pushed");
+            } else {
+              airqualArray = [];
+            }
+          }
+        }
+        
+        alert(room, tempArray, humidArray, airqualArray);
+
+      }
+
+  }
   
 }
+
+function validateTemperatureLevels (temperature) {
+  /*
+  *
+  * Temperature Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : too cold for occupants and computer components
+  * 1 = (*number of degrees) : in normal conditions
+  * 2 = (*number of degrees) : normal but uncomfortable for occupants
+  * 3 = (*number of degrees) : too hot for occupants and computer components
+  * 
+  * */
+
+  if (temperature < 20){
+    console.log('Temperature is TOO COLD: ' + temperature);
+    return 0;
+  }
+  else if( temperature > 20 && temperature <= 29.99999999 ){
+    console.log('Temperature is OK: ' + temperature);
+    return 1;
+  }
+  else if( temperature >= 30 && temperature <= 34.99999999 ){
+    console.log('Temperature is NOT COMFORTABLE: ' + temperature);
+    return 2;
+  }
+  else if( temperature >= 35 ){
+    console.log('Temperature is TOO HOT: ' + temperature);
+    return 3;
+  }
+};
+
+function validateHumidityLevels (humidity){
+  /*
+  *
+  * Humidity Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : too dry for occupants and computer components
+  * 1 = (*number of degrees) : in normal conditions
+  * 2 = (*number of degrees) : too wet for occupants and computer components
+  * 
+  * */
+ 
+  if (humidity < 40){
+    console.log('Humidity is TOO DRY: ' + humidity);
+    return 0;
+  }
+  else if( humidity >= 40 && humidity <= 59.99999999 ){
+    console.log('Humidity is OK: ' + humidity);
+    return 1;
+  }
+  else if( humidity >= 60 ){
+    console.log('Humidity is TOO WET: ' + humidity);
+    return 2;
+  }
+};
+
+function validateAirQualityLevels (airQuality){
+  /*
+  *
+  * Air Quality Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : Air Quality is Good and in normal condition
+  * 1 = (*number of degrees) : Air Quality is MODERATE
+  * 2 = (*number of degrees) : Air Quality is UNHEALTHY FOR SENSITIVE GROUPS
+  * 3 = (*number of degrees) : Air Quality is UNHEALTHY
+  * 4 = (*number of degrees) : Air Quality is VERY UNHEALTHY
+  * 5 = (*number of degrees) : Air Quality is HAZARDOUS
+  * 
+  *  https://www.airnow.gov/aqi/aqi-basics/
+  * */
+ 
+  if (airQuality < 50){
+    console.log('Air Quality is GOOD: ' + airQuality);
+    return 0;
+  }
+  else if( airQuality >= 50 && airQuality <= 99.99999999 ){
+    console.log('Air Quality is MODERATE: ' + airQuality);
+    return 1;
+  }
+  else if( airQuality >= 100 && airQuality <= 149.99999999 ){
+    console.log('Air Quality is UNHEALTHY FOR SENSITIVE GROUPS: ' + airQuality);
+    return 2;
+  }
+  else if( airQuality >= 150 && airQuality <= 199.99999999 ){
+    console.log('Air Quality is UNHEALTHY: ' + airQuality);
+    return 3;
+  }
+  else if( airQuality >= 200 && airQuality <= 299.99999999 ){
+    console.log('Air Quality is VERY UNHEALTHY: ' + airQuality);
+    return 4;
+  }
+  else if( airQuality >= 300 ){
+    console.log('Air Quality is HAZARDOUS: ' + airQuality);
+    return 5;
+  }
+};
+
+function alert(room , temperatureArray, humidityArray, airQualityArray){
+  let alert = false;
+
+  let temperatureMessage = "";
+  let humidityMessage = "";
+  let airQualityMessage = "";
+
+  if(temperatureArray.length != 0){
+
+  /*
+  *
+  * Temperature Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : too cold for occupants and computer components
+  * 1 = (*number of degrees) : in normal conditions
+  * 2 = (*number of degrees) : normal but uncomfortable for occupants
+  * 3 = (*number of degrees) : too hot for occupants and computer components
+  * 
+  * */
+
+    alert = true;
+
+    temperatureCategory = temperatureArray[temperatureArray.length - 1];
+    humidityCategory = humidityArray[humidityArray.length - 1];
+    airQualityCategory = airQualityArray[airQualityArray.length - 1];
+    switch(temperatureCategory){
+
+      case 0:
+        temperatureMessage = "too cold for occupants and computer components";
+        break;
+      case 2:
+        temperatureMessage = "normal but uncomfortable for occupants";
+        break;
+      case 3:
+        temperatureMessage = "too hot for occupants and computer components";
+        break;
+      default:
+        temperatureMessage = "unclassified Temperature measurement"
+    }
+    
+  }
+  if(humidityArray.length != 0){
+
+  /*
+  *
+  * Humidity Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : too dry for occupants and computer components
+  * 1 = (*number of degrees) : in normal conditions
+  * 2 = (*number of degrees) : too wet for occupants and computer components
+  * 
+  * */
+
+    alert = true;
+
+    humidityCategory = humidityArray[humidityArray.length - 1];
+
+    switch(humidityCategory){
+      case 0:
+        humidityMessage = "too dry for occupants and computer components";
+        break;
+      case 2:
+        humidityMessage = "too wet for occupants and computer components";
+        break;
+      default:
+        humidityMessage = "unclassified Humidity measurement"
+    }
+  }
+  if(airQualityArray.length != 0){
+  /*
+  *
+  * Air Quality Categories(based on ASHRAE Standard)
+  * 0 = (*number of degrees) : Air Quality is Good and in normal condition
+  * 1 = (*number of degrees) : Air Quality is MODERATE
+  * 2 = (*number of degrees) : Air Quality is UNHEALTHY FOR SENSITIVE GROUPS
+  * 3 = (*number of degrees) : Air Quality is UNHEALTHY
+  * 4 = (*number of degrees) : Air Quality is VERY UNHEALTHY
+  * 5 = (*number of degrees) : Air Quality is HAZARDOUS
+  * 
+  *  https://www.airnow.gov/aqi/aqi-basics/
+  * */
+
+  alert = true;
+
+  airQualityCategory = humidityArray[humidityArray.length - 1];
+
+  switch(airQualityCategory){
+    case 1:
+      airQualityMessage = "Air Quality is MODERATE";
+      break;
+    case 2:
+      airQualityMessage = "Air Quality is UNHEALTHY FOR SENSITIVE GROUPS";
+      break;
+    case 3:
+      airQualityMessage = "Air Quality is UNHEALTHY";
+      break;
+    case 4:
+      airQualityMessage = "Air Quality is VERY UNHEALTHY";
+      break;
+    case 5:
+      airQualityMessage = "Air Quality is HAZARDOUS";
+      break;
+    default:
+      airQualityMessage = "unclassified Air Quality measurement"
+  }
+
+  }
+
+  if(alert){
+    console.log("----------------------!!!!!!!!!!!----------------------");
+    console.log("\t\t\tALERT");
+    console.log("ROOM: " + room.room_name);
+    if(temperatureMessage != ""){
+      console.log(temperatureMessage);
+    }
+    if(humidityMessage != ""){
+      console.log(humidityMessage);
+    }
+    if(airQualityMessage != ""){
+      console.log(airQualityMessage);
+    }
+  }
+  console.log("----------------------!!!!!!!!!!!----------------------");
+
+}
+
+
 
 module.exports = controller;

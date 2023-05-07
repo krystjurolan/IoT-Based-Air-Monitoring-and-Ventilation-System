@@ -50,11 +50,11 @@
 
         <section class="row">
             <div class="col-12">
-                <div class="row">
-                    <div class="col-xl-4 col-md-6 col-sm-12" id="room-cards">
-                        <% rooms.forEach((room) => { %>
-                            <% buildings.forEach((building) => {  if(building.id == room.building_id) { %>
-                                <div class="card" id="idbuilding-<%= building.id %>" >
+                <div class="row" id="room-cards">
+                     <% rooms.forEach((room) => { %>
+                        <% buildings.forEach((building) => {  if(building.id == room.building_id) { %>
+                             <div class="col-xl-4 col-md-6 col-sm-12" id="idbuilding-<%= building.id %>">
+                                <div class="card"  >
                                     <div class="card-content">
                                         <div class="card-body">
                                             <h4 class="card-title">Room Name: <%= room.room_name %></h4>
@@ -78,18 +78,23 @@
                                         role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h4 class="modal-title" id="myModalLabel16">Extra Large Modal</h4>
+                                                <h4 class="modal-title" id="myModalLabel16">Room Monitoring</h4>
                                                 <button type="button" class="close" data-bs-dismiss="modal"
                                                     aria-label="Close">
                                                     <i data-feather="x"></i>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <h4 class="card-title">Room Name: <%= room.room_name %></h4>
+                                                <h4 class="card-title"> Room Name: <%= room.room_name %></h4>
                                                 <h6 class="card-subtitle">Building:  <%= building.building_name %> </h6>
                                                 <h6 class="card-subtitle">Sensor ID: <%= room.device_id %></h6>
+                                                <h6 class="card-subtitle">Room Description: <%= room.room_desc %></h6>
+                                                <h6 class="card-subtitle">Building Description: <%= building.building_desc %></h6>
+                                                <div id="modal-device-<%= room.device_id %>">
+                                                    <p>Offline or No Sensor ID Match</p>
+                                                </div>
                                                 <div id="device-<%= room.device_id %>">
-                                                    <canvas id="myChart"></canvas>
+                                                    <canvas id="myChart-<%= room.device_id %>"></canvas>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light-secondary"
@@ -108,11 +113,11 @@
                                 </div>
                             </div>
                             <!--Modal full size -->
-                            <% } }); %>
-                        <% }); %>
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                        <script src="/socket.io/socket.io.js"></script>
-                    </div>
+                            </div>
+                        <% } }); %>
+                    <% }); %>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script src="/socket.io/socket.io.js"></script>
                 </div>
             </div>
         </section>
@@ -141,8 +146,19 @@
              });
         }
 
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
+        const charts = {};
+
+        
+        // Listen for data from server
+    socket.on('data', (data) => {
+      console.log('Data received:', data);
+
+      const chartID = "myChart-" + data.device_id
+      
+      if (!charts[chartID]) {
+
+        const ctx = document.getElementById(chartID).getContext('2d');
+        charts[chartID] = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
@@ -170,7 +186,14 @@
                 responsive: true,
                 scales: {
                     xAxes: [{
-                        display: true
+                        type: 'time',
+                        display: true,
+                        time: {
+                            unit: 'minute',
+                            displayFormats: {
+                                minute: 'h:mm a'
+                            }
+                        }
                     }],
                     yAxes: [{
                         display: true,
@@ -182,16 +205,32 @@
             }
         });
 
-        
-        // Listen for data from server
-    socket.on('data', (data) => {
-      console.log('Data received:', data);
+      }
+      
+        const chart = charts[chartID];
 
-      myChart.data.labels.push(new Date().toLocaleTimeString());
-        myChart.data.datasets[0].data.push(data.temperature);
-        myChart.data.datasets[1].data.push(data.humidity);
-        myChart.data.datasets[2].data.push(data.airQuality);
-        myChart.update();
+        const now = new Date();
+        const timeLimit = now.getTime() - 60 * 1000; // 1 minute ago
+
+        // Remove all data points outside the 1-minute window
+        chart.data.datasets.forEach((dataset) => {
+        dataset.data = dataset.data.filter((datapoint) => {
+            return datapoint.x >= timeLimit;
+        });
+        });
+
+        // Update the chart labels to only show the time
+        chart.data.labels = chart.data.datasets[0].data.map((datapoint) => {
+            const time = new Date(datapoint.x).toLocaleTimeString();
+            return time;
+        });
+
+        chart.data.datasets[0].data.push({x: now, y: data.temperature});
+        chart.data.datasets[1].data.push({x: now, y: data.humidity});
+        chart.data.datasets[2].data.push({x: now, y: data.airQuality});
+
+        chart.update();
+
       
 
       // Create or update div card for each device
@@ -209,7 +248,21 @@
         <h6><i class="bi bi-moisture"></i> &nbsp Humidity:  ${data.humidity}%RH</h6>
         <h6><i class="bi bi-wind"></i> &nbsp Air Quality:  ${data.airQuality}ppm</h6>
       `;
+
+      const cardModalId = 'modal-device-' + data.device_id;
+      let modalcard = document.getElementById(cardModalId);
+      modalcard.innerHTML = `
+      <p> </p>
+      <div class="row" > 
+        <h6><i class="bi bi-thermometer-half"></i> &nbsp Temperature:  ${data.temperature}°C</h6>
+        <h6><i class="bi bi-moisture"></i> &nbsp Humidity:  ${data.humidity}%RH</h6>
+        <h6><i class="bi bi-wind"></i> &nbsp Air Quality:  ${data.airQuality}ppm</h6>
+      </div>
+      `;
     });
+
+
+    
     </script>
 
                 

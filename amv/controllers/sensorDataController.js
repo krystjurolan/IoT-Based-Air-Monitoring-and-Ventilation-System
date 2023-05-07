@@ -332,7 +332,8 @@ const myInterval = setInterval(getData, 10000);
           }
         }
         
-        alert(room, tempArray, humidArray, airqualArray);
+        // alert(room, tempArray, humidArray, airqualArray);
+        return {room, tempArray, humidArray, airqualArray};
 
       }
 

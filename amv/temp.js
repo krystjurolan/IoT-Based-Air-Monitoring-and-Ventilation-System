@@ -166,6 +166,7 @@
         myChart.data.datasets[1].data.push(data.humidity);
         myChart.data.datasets[2].data.push(data.airQuality);
         myChart.update();
+        git commit -m "Initially Added Chart.js for Room Monitoring Modals" -m "Added Chart.js to modals in Room Monitoring, but needs polish. Still incomplete"
       
 
       // Create or update div card for each device

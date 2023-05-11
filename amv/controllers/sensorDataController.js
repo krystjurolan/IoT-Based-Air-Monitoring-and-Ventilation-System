@@ -243,13 +243,35 @@ const myInterval = setInterval(getData, 10000);
 
         if(room){
 
-          db.Data.create({ 
+          const philippinesTimezone = "Asia/Manila"; // set the timezone to Philippine Time
+          const options = {
+            timeZone: philippinesTimezone,
+            hour12: false,
+          };
+
+          // db.Data.create({ 
+          //   RoomId: room.id,
+          //   device_id: data.device_id,
+          //   temperature: data.temperature, 
+          //   humidity: data.humidity, 
+          //   air_quality: data.airQuality, 
+          //   createdAt: new Date().toLocaleString("en-US", options) });
+
+
+          // const philippinesTimezone = "Asia/Manila"; // set the timezone to Philippine Time
+          // const options = {
+          //   timeZone: philippinesTimezone,
+          //   hour12: false,
+          // };
+          const philippinesTime = new Date().toLocaleString("en-US", options);
+          db.Data.create({
             RoomId: room.id,
             device_id: data.device_id,
-            temperature: data.temperature, 
-            humidity: data.humidity, 
-            air_quality: data.airQuality, 
-            createdAt: new Date() });
+            temperature: data.temperature,
+            humidity: data.humidity,
+            air_quality: data.airQuality,
+            createdAt: philippinesTime,
+          });
 
         }
         
@@ -265,8 +287,8 @@ const myInterval = setInterval(getData, 10000);
 
   deleteOldData: async () => {
     try {
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000); // set the date to 1 hour ago
-      const query = `DELETE FROM Data WHERE createdAt < '${oneHourAgo.toISOString()}'`;
+      const twoMonthsAgo = new Date(Date.now() - 60 * 60 * 24 * 60 * 1000); // set the date to 2 months ago
+      const query = `DELETE FROM Data WHERE createdAt < '${twoMonthsAgo.toISOString()}'`;
       await db.sequelize.query(query);
       console.log('Old data deleted successfully');
     } catch (error) {
@@ -332,8 +354,8 @@ const myInterval = setInterval(getData, 10000);
           }
         }
         
-        // alert(room, tempArray, humidArray, airqualArray);
-        return {room, tempArray, humidArray, airqualArray};
+        alert(room, tempArray, humidArray, airqualArray);
+        // return {room, tempArray, humidArray, airqualArray};
 
       }
 

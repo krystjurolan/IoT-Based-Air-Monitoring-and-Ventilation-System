@@ -62,7 +62,12 @@ db.sequelize.sync().then(() => {
     const sensorsController = require('./controllers/sensorDataController');
 
     //delete data older than 1 hour (1 Hour time for testing, would be 2 months in deployment)
-    sensorsController.deleteOldData();
+    setInterval(()=>{
+      sensorsController.deleteOldData();
+    }, 5000
+    // 1800000
+    )
+    
     
     const routes = require("./routes/routes");
     app.use("/", routes);
@@ -70,8 +75,8 @@ db.sequelize.sync().then(() => {
     setInterval(()=>{
       // require('./controllers/alertController');
       // checkDataToAlert
-      console.log("----------------------------------------");
-      sensorsController.validateDataToAlert();
+      // console.log("----------------------------------------");
+      // sensorsController.validateDataToAlert();
     }, 5000);
 
 

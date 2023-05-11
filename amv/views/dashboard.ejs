@@ -1,3 +1,4 @@
+<title>Dashboard | AMV System</title>
 <%- include('layouts/main_layout') %>
     <div id="app">
         <%- include('partials/sidebar') %>
@@ -11,7 +12,7 @@
             </script>
             
 <div class="page-heading">
-    <h3>Profile Statistics</h3>
+    <h3>Dashboard</h3>
 </div>
 <div class="page-content">
     <section class="row">
@@ -28,7 +29,7 @@
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                     <h6 class="text-muted font-semibold">Connections</h6>
-                                    <h6 class="font-extrabold mb-0" id="esp8266-counter">  </h6>
+                                    <h6 class="font-extrabold mb-0" id="esp8266-counter"> 0 </h6>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +46,7 @@
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                     <h6 class="text-muted font-semibold">Average Temperature</h6>
-                                    <h6 class="font-extrabold mb-0" id="avgTemperature">  </h6>
+                                    <h6 class="font-extrabold mb-0" id="avgTemperature"> °C </h6>
                                 </div>
                             </div>
                         </div>
@@ -62,7 +63,7 @@
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                     <h6 class="text-muted font-semibold">Average Humidity</h6>
-                                    <h6 class="font-extrabold mb-0" id="avgHumidity">80.000</h6>
+                                    <h6 class="font-extrabold mb-0" id="avgHumidity">RH</h6>
                                 </div>
                             </div>
                         </div>
@@ -79,14 +80,15 @@
                                 </div>
                                 <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                     <h6 class="text-muted font-semibold">Average Air Quality</h6>
-                                    <h6 class="font-extrabold mb-0" id="avgAirQuality">112</h6>
+                                    <h6 class="font-extrabold mb-0" id="avgAirQuality">ppm</h6>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
+            
+            <!-- <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
@@ -210,7 +212,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="col-12 col-lg-3">
             <div class="card">
@@ -221,12 +223,12 @@
                         </div>
                         <div class="ms-3 name">
                             <h5 class="font-bold">Alerts</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
+                            <h6 class="text-muted mb-0">See Alerts Here</h6>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <!-- <div class="card">
                 <div class="card-header">
                     <h4>Recent Messages</h4>
                 </div>
@@ -270,24 +272,47 @@
                 <div class="card-body">
                     <div id="chart-visitors-profile"></div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </section>
 </div>
+    
     <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- <script src="assets/extensions/toastify-js/src/toastify.js"></script>
+    <script src="assets/js/pages/toastify.js"></script> -->
     <script>
-        const socket = io();
+        // const socket = io();
+
+        // socket.on('alertMessage', (data) => {
+
+        //     Toastify({
+        //     text: "Device ID: " + data.device_id + " Room Name: " + data.room_name,
+        //     duration: 10000,
+        //     newWindow: true,
+        //     close: true,
+        //     gravity: "top", // `top` or `bottom`
+        //     position: "right", // `left`, `center` or `right`
+        //     stopOnFocus: true, // Prevents dismissing of toast on hover
+        //     style: {
+        //         background: "linear-gradient(to right, #00b09b, #96c93d)",
+        //     },
+        //     onClick: function(){} // Callback after click
+        //     }).showToast();
+
+        //     console.log(data);
+        // });
 
         socket.on('averageOfAllData', (data) => {
-        // Update the content of the <span> element with the average temperature
-        document.getElementById('avgTemperature').innerHTML = data.temperature + '°C';
-        document.getElementById('avgHumidity').innerHTML = data.humidity + '%RH';
-        document.getElementById('avgAirQuality').innerHTML = data.airQuality + 'ppm';
-        });
+            // Update the content of the <span> element with the average temperature
+            document.getElementById('avgTemperature').innerHTML = data.temperature + '°C';
+            document.getElementById('avgHumidity').innerHTML = data.humidity + '%RH';
+            document.getElementById('avgAirQuality').innerHTML = data.airQuality + 'ppm';
+            });
 
-        socket.on('esp8266Connections', (count) => {
-        const esp8266Counter = document.getElementById('esp8266-counter');
-        esp8266Counter.textContent = count;
+            socket.on('esp8266Connections', (count) => {
+            const esp8266Counter = document.getElementById('esp8266-counter');
+            esp8266Counter.textContent = count;
       });
     </script>
 

@@ -1,6 +1,6 @@
 
 const { Op, fn, col } = require('sequelize');
-const { Data } = require('../models'); // assuming you have a DeviceData model
+const { Data , Rooms } = require('../models'); // assuming you have a DeviceData model
 const sensorController = require('../controllers/sensorDataController');
 
 let esp8266Connections = 0;
@@ -102,7 +102,7 @@ module.exports = function(io) {
   }, 5000);
 
   
-
+  //emit the average data levels of all device
   setInterval(async () => {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -134,21 +134,99 @@ module.exports = function(io) {
   //Alerts
   setInterval(async () => {
 
-    const validatedDataForAlert = sensorController.validateDataToAlert();
+    // const validatedDataForAlert = sensorController.validateDataToAlert();
 
-    let room = validatedDataForAlert.room;
-    let temperatureArray = validatedDataForAlert.tempArray;
-    let humidityArray = validatedDataForAlert.humidArray;
-    let airQualityArray = validatedDataForAlert.airqualArray;
+    // const room = sensorController.validateDataToAlert().room;
+    // const temperatureArray = sensorController.validateDataToAlert().tempArray;
+    // const humidityArray = sensorController.validateDataToAlert().humidArray;
+    // const airQualityArray = sensorController.validateDataToAlert().airqualArray;
 
-    console.log("-/-/-/-/-/-/-/-/--/-/"+validatedDataForAlert.room);
+    // console.log("-/-/-/-/-/-/-/-/--/-/"+room);
 
-    function alert(){
+    
+
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+  
+      const tempertaureArray = [];
+      const humidityArray = [];
+      const airQualityArray = [];
+  
+      const rooms = await Rooms.findAll();
+  
+      const fiveSecondsAgo = new Date(Date.now() - 5000); // 5 seconds ago
+      const data = await Data.findAll({
+          where: {
+            createdAt: {
+              [Op.gte]: fiveSecondsAgo,
+            }
+          }
+        });
+        console.log(rooms);
+        // console.log(data);
+  
+        console.log("_________________________");
+  
+        for( const room of rooms ){
+          let tempArray = [];
+          let humidArray = [];
+          let airqualArray = [];
+  
+          for( const dataa of data ){
+            const temp = sensorController.validateTempertaureLevels(dataa.temperature)
+            const humid = sensorController.validateHumidityLevels(dataa.humidity);
+            const airqual = sensorController.validateAirQualityLevels(dataa.air_quality);
+  
+  
+            if(room.device_id == dataa.device_id){
+              if(temp != 1){
+                tempArray.push(temp);
+                console.log("temp pushed");
+              } else {
+                tempArray = [];
+              }
+  
+              if(humid != 1){
+                humidArray.push(humid);
+                console.log("humid pushed");
+              } else {
+                humidArray = [];
+              }
+  
+              if(airqual != 0){
+                airqualArray.push(airqual);
+                console.log("airqual pushed");
+              } else {
+                airqualArray = [];
+              }
+            }
+          }
+
+          if(tempArray.length != 0 || humidArray.length != 0 || airqualArray != 0){
+            console.log("-/-/-/-/-/-/-/-/--/-/ "+ tempArray);
+          
+            alert(room, tempArray, humidArray, airqualArray);
+            // return {room, tempArray, humidArray, airqualArray};
+          }
+
+          
+
+          tempArray = [];
+          humidArray = [];
+          airqualArray = [];
+  
+        }
+  
+
+    function alert(room , temperatureArray, humidityArray, airQualityArray){
       let alert = false;
+
+      // console.log("-/-/-/-/-/-/-/-/--/-/"+room);
     
       let temperatureMessage = "";
       let humidityMessage = "";
       let airQualityMessage = "";
+
+    
     
       if(temperatureArray.length != 0){
     
@@ -161,25 +239,24 @@ module.exports = function(io) {
       * 3 = (*number of degrees) : too hot for occupants and computer components
       * 
       * */
-    
+
         alert = true;
-    
+        
         temperatureCategory = temperatureArray[temperatureArray.length - 1];
-        humidityCategory = humidityArray[humidityArray.length - 1];
-        airQualityCategory = airQualityArray[airQualityArray.length - 1];
+
         switch(temperatureCategory){
     
           case 0:
-            temperatureMessage = "too cold for occupants and computer components";
+            temperatureMessage = "! TOO COLD for occupants and computer components";
             break;
           case 2:
-            temperatureMessage = "normal but uncomfortable for occupants";
+            temperatureMessage = "! NORMAL BUT uncomfortable for occupants";
             break;
           case 3:
-            temperatureMessage = "too hot for occupants and computer components";
+            temperatureMessage = "! TOO HOT for occupants and computer components";
             break;
           default:
-            temperatureMessage = "unclassified Temperature measurement"
+            temperatureMessage = "! Unclassified Temperature measurement"
         }
         
       }
@@ -200,13 +277,13 @@ module.exports = function(io) {
     
         switch(humidityCategory){
           case 0:
-            humidityMessage = "too dry for occupants and computer components";
+            humidityMessage = "! TOO DRY for occupants and computer components";
             break;
           case 2:
-            humidityMessage = "too wet for occupants and computer components";
+            humidityMessage = "! TOO WET for occupants and computer components";
             break;
           default:
-            humidityMessage = "unclassified Humidity measurement"
+            humidityMessage = "Unclassified Humidity measurement"
         }
       }
       if(airQualityArray.length != 0){
@@ -225,26 +302,27 @@ module.exports = function(io) {
     
       alert = true;
     
-      airQualityCategory = humidityArray[humidityArray.length - 1];
+      airQualityCategory = airQualityArray[airQualityArray.length - 1];
+      console.log("[/[/[[//[/[/[[/[[[[/[/[[/[[/[[/[- Air Quality Category "+ airQualityCategory + " -/[/[/[/[/[/[/[/[/[/[/[/[/[/[/[/[//[/[[//[")
     
       switch(airQualityCategory){
         case 1:
-          airQualityMessage = "Air Quality is MODERATE";
+          airQualityMessage = "! Air Quality is MODERATE";
           break;
         case 2:
-          airQualityMessage = "Air Quality is UNHEALTHY FOR SENSITIVE GROUPS";
+          airQualityMessage = "! Air Quality is UNHEALTHY FOR SENSITIVE GROUPS";
           break;
         case 3:
-          airQualityMessage = "Air Quality is UNHEALTHY";
+          airQualityMessage = "! Air Quality is UNHEALTHY";
           break;
         case 4:
-          airQualityMessage = "Air Quality is VERY UNHEALTHY";
+          airQualityMessage = "! Air Quality is VERY UNHEALTHY";
           break;
         case 5:
-          airQualityMessage = "Air Quality is HAZARDOUS";
+          airQualityMessage = "! Air Quality is HAZARDOUS";
           break;
         default:
-          airQualityMessage = "unclassified Air Quality measurement"
+          airQualityMessage = "! Unclassified Air Quality measurement"
       }
     
       }
@@ -253,18 +331,32 @@ module.exports = function(io) {
         console.log("----------------------!!!!!!!!!!!----------------------");
         console.log("\t\t\tALERT");
         console.log("ROOM: " + room.room_name);
+
+        let messageArray = [];
         if(temperatureMessage != ""){
           console.log(temperatureMessage);
+          messageArray.push({message: temperatureMessage});
         }
         if(humidityMessage != ""){
           console.log(humidityMessage);
+          messageArray.push({message: humidityMessage});
         }
         if(airQualityMessage != ""){
           console.log(airQualityMessage);
+          messageArray.push({message: airQualityMessage});
         }
+
+        const alertData = {
+          device_id: room.device_id,
+          room_name: room.room_name,
+          message: messageArray,
+        }
+
+        io.emit('alertMessage', alertData);
       }
+
       console.log("----------------------!!!!!!!!!!!----------------------");
-    
+      alert = false;
     }
   }, 10000)
 

@@ -1,0 +1,51 @@
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <script>
+
+    const socket = io();
+
+    socket.on('alertMessage', (data) => {
+
+        let message;
+        data.message.forEach(msg => {
+
+            if(message == undefined){
+                message = "\n" + msg.message;
+            }else{
+                message += "\n" + msg.message;
+            }
+            
+        });
+
+
+    Toastify({
+    text: "Device ID: " + data.device_id + " Room Name: " + data.room_name + message,
+    duration: 10000,
+    newWindow: true,
+    close: true,
+    gravity: "bottom", // `top` or `bottom`
+    position: "right", // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+        background: "linear-gradient(to right, #00b09b, #96c93d)",
+    },
+    onClick: function(){} // Callback after click
+    }).showToast();
+
+    console.log(data);
+});
+
+    // var option = {
+    //     animation: true,
+    //     delay: 2000
+    // };
+
+    // function Toasty (  ){
+    //     var toast = document.getElementById('toaster');
+
+    //     var toastElement = new bootstrap.Toast(toast, option);
+    //     toastElement.show();
+    // }
+  </script>

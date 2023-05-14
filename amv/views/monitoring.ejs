@@ -46,7 +46,7 @@
                     </div>
                 </div>
                 
-                <a href="#" class="btn icon icon-left btn-primary"><i data-feather="edit"></i> Add New Building/Room</a>
+                <a href="/manage-space" class="btn icon icon-left btn-primary"><i data-feather="edit"></i> Add New Building/Room</a>
             </div>
         </div>
 
@@ -69,7 +69,7 @@
                                     </div>
                                     <div class="card-footer d-flex justify-content-between">
                                         <button class="btn btn-light-primary" data-bs-toggle="modal"
-                                        data-bs-target="#modal-<%= room.device_id  %>">Read More</button>
+                                        data-bs-target="#modal-<%= room.device_id  %>">View Details</button>
                                     </div>
                                 </div>
 
@@ -104,11 +104,13 @@
                                                     <i class="bx bx-x d-block d-sm-none"></i>
                                                     <span class="d-none d-sm-block">Close</span>
                                                 </button>
+                                                <a href="/generate-report">
                                                 <button type="button" class="btn btn-primary ml-1"
                                                     data-bs-dismiss="modal">
                                                     <i class="bx bx-check d-block d-sm-none"></i>
-                                                    <span class="d-none d-sm-block">Accept</span>
+                                                    <span class="d-none d-sm-block">Generate Report</span>
                                                 </button>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

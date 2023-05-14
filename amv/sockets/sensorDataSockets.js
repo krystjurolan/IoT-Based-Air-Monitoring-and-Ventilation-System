@@ -2,8 +2,12 @@
 const { Op, fn, col } = require('sequelize');
 const { Data , Rooms } = require('../models'); // assuming you have a DeviceData model
 const sensorController = require('../controllers/sensorDataController');
+const axios = require('axios');
 
 let esp8266Connections = 0;
+
+let smsTimeout; //stores Interval instance
+const sendSMSAlerts = false;
 
 module.exports = function(io) {
     // Listen for incoming Socket.io connections
@@ -41,7 +45,7 @@ module.exports = function(io) {
       //   }, 10000) 
 
       sensorController.saveData(data);
-      sensorController.deleteOldData();
+      // sensorController.deleteOldData();
 
       
       // let count = 0;
@@ -67,6 +71,41 @@ module.exports = function(io) {
       //   console.error(err);
       // }
     });
+  });
+
+  io.on('sendSMS', (alertData)=>{
+      const mobileno = "+639367438265";
+      const message = alertData.room_name;
+
+      const smstosend = {
+        message: `message=tagabukidsms=:=${mobileno}=:=${message}`,
+        password: "tagabukid@z7a18q",
+        ttl: 0,
+        collapsekey: "",
+        key: `${mobileno}`,
+        sender: "tagabukidsms",
+        communication_base_params: {
+          sender: "tagabukidsms",
+          type: "Message",
+        },
+      };
+      axios
+        .post("http://58.69.56.207:1817", smstosend)
+        .then(function (response) {
+          // res.send("Message Sent");
+          console.log("//////////////////////////////////////////////")
+      console.log("//////////////////////////////////////////////")
+      console.log("////////////////////////////////////////////// SMS SENT" + alertData.device_id);
+      console.log("//////////////////////////////////////////////")
+      console.log("//////////////////////////////////////////////")
+        })
+        .catch(function (error) {
+          // res.send("Message Not Sent");
+          console.log("//////////////////////////////////////////////")
+      console.log("////////////////////////////////////////////// NOT SENT!!!!!!!!!!" );
+      console.log("//////////////////////////////////////////////")
+      console.log("//////////////////////////////////////////////")
+        });
   });
 
   //Emits Number of Connections
@@ -153,7 +192,7 @@ module.exports = function(io) {
   
       const rooms = await Rooms.findAll();
   
-      const fiveSecondsAgo = new Date(Date.now() - 5000); // 5 seconds ago
+      const fiveSecondsAgo = new Date(Date.now() - 15000); // 5 seconds ago
       const data = await Data.findAll({
           where: {
             createdAt: {
@@ -247,13 +286,13 @@ module.exports = function(io) {
         switch(temperatureCategory){
     
           case 0:
-            temperatureMessage = "! TOO COLD for occupants and computer components";
+            temperatureMessage = "Temperature is TOO COLD for occupants and computer components";
             break;
           case 2:
-            temperatureMessage = "! NORMAL BUT uncomfortable for occupants";
+            temperatureMessage = "Temperature is NORMAL BUT uncomfortable for occupants";
             break;
           case 3:
-            temperatureMessage = "! TOO HOT for occupants and computer components";
+            temperatureMessage = "Temperature is TOO HOT for occupants and computer components";
             break;
           default:
             temperatureMessage = "! Unclassified Temperature measurement"
@@ -277,10 +316,10 @@ module.exports = function(io) {
     
         switch(humidityCategory){
           case 0:
-            humidityMessage = "! TOO DRY for occupants and computer components";
+            humidityMessage = "Humidity is TOO DRY for occupants and computer components";
             break;
           case 2:
-            humidityMessage = "! TOO WET for occupants and computer components";
+            humidityMessage = "Humidity is TOO WET for occupants and computer components";
             break;
           default:
             humidityMessage = "Unclassified Humidity measurement"
@@ -307,25 +346,24 @@ module.exports = function(io) {
     
       switch(airQualityCategory){
         case 1:
-          airQualityMessage = "! Air Quality is MODERATE";
+          airQualityMessage = "Air Quality is MODERATE";
           break;
         case 2:
-          airQualityMessage = "! Air Quality is UNHEALTHY FOR SENSITIVE GROUPS";
+          airQualityMessage = "Air Quality is UNHEALTHY";
           break;
         case 3:
-          airQualityMessage = "! Air Quality is UNHEALTHY";
+          airQualityMessage = "Air Quality is VERY UNHEALTHY";
           break;
         case 4:
-          airQualityMessage = "! Air Quality is VERY UNHEALTHY";
-          break;
-        case 5:
-          airQualityMessage = "! Air Quality is HAZARDOUS";
+          airQualityMessage = "Air Quality is HAZARDOUS";
           break;
         default:
-          airQualityMessage = "! Unclassified Air Quality measurement"
+          airQualityMessage = "Unclassified Air Quality measurement"
       }
     
       }
+
+      
     
       if(alert){
         console.log("----------------------!!!!!!!!!!!----------------------");
@@ -352,12 +390,77 @@ module.exports = function(io) {
           message: messageArray,
         }
 
+        
         io.emit('alertMessage', alertData);
+
+        // if(sendSMSAlerts){
+          
+          smsTimeout = setTimeout((data)=>{
+            // console.log("//////////////////////////////////////////////")
+            // console.log("//////////////////////////////////////////////")
+            // console.log("////////////////////////////////////////////// SMS Sent" + alertData.device_id);
+            // console.log("//////////////////////////////////////////////")
+            // console.log("//////////////////////////////////////////////")
+  
+            let fullMessage;
+            messageArray.forEach(msg => {
+  
+              if(fullMessage == undefined){
+                fullMessage = "Air Monitoring and Ventilation System Warning! \n"+ room.room_name +" have unusual IAQ Level/s: \n" + msg.message;
+              }else{
+                fullMessage += "\n" + msg.message;
+              }
+              
+          });
+  
+            let mobileno = "+639367438265";
+            let message = fullMessage;
+  
+            let smstosend = {
+              message: `message=tagabukidsms=:=${mobileno}=:=${fullMessage}`,
+              password: "tagabukid@z7a18q",
+              ttl: 0,
+              collapsekey: "",
+              key: `${mobileno}`,
+              sender: "tagabukidsms",
+              communication_base_params: {
+                sender: "tagabukidsms",
+                type: "Message",
+              },
+            };
+            axios
+              .post("http://58.69.56.207:1817", smstosend)
+              .then(function (response) {
+                // res.send("Message Sent");
+            console.log("//////////////////////////////////////////////")
+            console.log("//////////////////////////////////////////////")
+            console.log("////////////////////////////////////////////// SMS SENT " + alertData.device_id);
+            console.log("////////////////////////////////////////////// " + fullMessage);
+            console.log("//////////////////////////////////////////////")
+            console.log("//////////////////////////////////////////////")
+              })
+              .catch(function (error) {
+                // res.send("Message Not Sent");
+                console.log("//////////////////////////////////////////////")
+            console.log("////////////////////////////////////////////// NOT SENT!!!!!!!!!!" );
+            console.log("//////////////////////////////////////////////")
+            console.log("//////////////////////////////////////////////")
+              });
+  
+          },15000); //sends action to send SMS through Interval
+
+        // }
+
+        
+      } else{
+        clearTimeout(smsTimeout);
       }
 
+      
       console.log("----------------------!!!!!!!!!!!----------------------");
       alert = false;
     }
-  }, 10000)
+  }, 10000);
+  
 
 };

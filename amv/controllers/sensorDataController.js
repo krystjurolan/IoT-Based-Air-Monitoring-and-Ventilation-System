@@ -18,6 +18,8 @@
 
 const db = require('../models');
 const { Op } = require("sequelize");
+const moment = require('moment');
+const philippinesTimezone = 'Asia/Manila';
 
 const controller = {
 
@@ -183,11 +185,11 @@ const myInterval = setInterval(getData, 10000);
     * 
     * */
    
-    if (humidity < 40){
+    if (humidity < 30){
       console.log('Humidity is TOO DRY: ' + humidity);
       return 0;
     }
-    else if( humidity >= 40 && humidity <= 59.99999999 ){
+    else if( humidity >= 30 && humidity <= 59.99999999 ){
       console.log('Humidity is OK: ' + humidity);
       return 1;
     }
@@ -208,29 +210,25 @@ const myInterval = setInterval(getData, 10000);
     *  https://www.airnow.gov/aqi/aqi-basics/
     * */
    
-    if (airQuality < 50){
+    if (airQuality < 100){
       console.log('Air Quality is GOOD: ' + airQuality);
       return 0;
     }
-    else if( airQuality >= 50 && airQuality <= 99.99999999 ){
+    else if( airQuality >= 100 && airQuality <= 149.99999999 ){
       console.log('Air Quality is MODERATE: ' + airQuality);
       return 1;
     }
-    else if( airQuality >= 100 && airQuality <= 149.99999999 ){
-      console.log('Air Quality is UNHEALTHY FOR SENSITIVE GROUPS: ' + airQuality);
-      return 2;
-    }
     else if( airQuality >= 150 && airQuality <= 199.99999999 ){
       console.log('Air Quality is UNHEALTHY: ' + airQuality);
-      return 3;
+      return 2;
     }
     else if( airQuality >= 200 && airQuality <= 299.99999999 ){
       console.log('Air Quality is VERY UNHEALTHY: ' + airQuality);
-      return 4;
+      return 3;
     }
     else if( airQuality >= 300 ){
       console.log('Air Quality is HAZARDOUS: ' + airQuality);
-      return 5;
+      return 4;
     }
   },
 
@@ -243,11 +241,11 @@ const myInterval = setInterval(getData, 10000);
 
         if(room){
 
-          const philippinesTimezone = "Asia/Manila"; // set the timezone to Philippine Time
-          const options = {
-            timeZone: philippinesTimezone,
-            hour12: false,
-          };
+          // const philippinesTimezone = "Asia/Manila"; // set the timezone to Philippine Time
+          // const options = {
+          //   timeZone: philippinesTimezone,
+          //   hour12: false,
+          // };
 
           // db.Data.create({ 
           //   RoomId: room.id,
@@ -255,7 +253,15 @@ const myInterval = setInterval(getData, 10000);
           //   temperature: data.temperature, 
           //   humidity: data.humidity, 
           //   air_quality: data.airQuality, 
-          //   createdAt: new Date().toLocaleString("en-US", options) });
+          //   createdAt: new Date() });
+
+            db.Data.create({ 
+              RoomId: room.id,
+              device_id: data.device_id,
+              temperature: data.temperature, 
+              humidity: data.humidity, 
+              air_quality: data.airQuality, 
+              createdAt: moment().tz(philippinesTimezone).toDate() });
 
 
           // const philippinesTimezone = "Asia/Manila"; // set the timezone to Philippine Time
@@ -263,19 +269,19 @@ const myInterval = setInterval(getData, 10000);
           //   timeZone: philippinesTimezone,
           //   hour12: false,
           // };
-          const philippinesTime = new Date().toLocaleString("en-US", options);
-          db.Data.create({
-            RoomId: room.id,
-            device_id: data.device_id,
-            temperature: data.temperature,
-            humidity: data.humidity,
-            air_quality: data.airQuality,
-            createdAt: philippinesTime,
-          });
-
+          // const philippinesTime = new Date().toLocaleString("en-US", options);
+          // db.Data.create({
+          //   RoomId: room.id,
+          //   device_id: data.device_id,
+          //   temperature: data.temperature,
+          //   humidity: data.humidity,
+          //   air_quality: data.airQuality,
+          //   createdAt: philippinesTime,
+          // });
+          console.log("data saved!!!");
         }
         
-        console.log("data saved!!!");
+        
 
         // return room;
       } catch (error) {
@@ -402,11 +408,11 @@ function validateHumidityLevels (humidity){
   * 
   * */
  
-  if (humidity < 40){
+  if (humidity < 30){
     console.log('Humidity is TOO DRY: ' + humidity);
     return 0;
   }
-  else if( humidity >= 40 && humidity <= 59.99999999 ){
+  else if( humidity >= 30 && humidity <= 59.99999999 ){
     console.log('Humidity is OK: ' + humidity);
     return 1;
   }
@@ -434,25 +440,21 @@ function validateAirQualityLevels (airQuality){
     console.log('Air Quality is GOOD: ' + airQuality);
     return 0;
   }
-  else if( airQuality >= 50 && airQuality <= 99.99999999 ){
+  else if( airQuality >= 50 && airQuality <= 149.99999999 ){
     console.log('Air Quality is MODERATE: ' + airQuality);
     return 1;
   }
-  else if( airQuality >= 100 && airQuality <= 149.99999999 ){
-    console.log('Air Quality is UNHEALTHY FOR SENSITIVE GROUPS: ' + airQuality);
-    return 2;
-  }
   else if( airQuality >= 150 && airQuality <= 199.99999999 ){
     console.log('Air Quality is UNHEALTHY: ' + airQuality);
-    return 3;
+    return 2;
   }
   else if( airQuality >= 200 && airQuality <= 299.99999999 ){
     console.log('Air Quality is VERY UNHEALTHY: ' + airQuality);
-    return 4;
+    return 3;
   }
   else if( airQuality >= 300 ){
     console.log('Air Quality is HAZARDOUS: ' + airQuality);
-    return 5;
+    return 4;
   }
 };
 

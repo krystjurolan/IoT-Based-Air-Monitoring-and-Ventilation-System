@@ -12,7 +12,7 @@ function isLoggedIn(req, res, next) {
    res.redirect('/login');
  }
 
-const userAuth = passport.authenticate('local', { failureRedirect: '/login' })
+const userAuth = passport.authenticate('local', { failureRedirect: '/login' });
 
 require('./page.routes')( router, passport , isLoggedIn );
 require('./sensor.routes')( router, passport , isLoggedIn);

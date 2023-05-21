@@ -11,6 +11,10 @@ const { generateReport } = require('../controllers/reportController');
 
 module.exports = (router, passport ,isLoggedIn) => {
 
+  router.get('/', (req, res) => {
+    res.redirect('/dashboard');
+  });
+
 
   router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
@@ -268,5 +272,9 @@ module.exports = (router, passport ,isLoggedIn) => {
     });
 
     router.post('/generate-report/get-pdf', isLoggedIn, generateReport);
+
+    router.get('/settings', (req, res) => {
+      res.render('settings');
+    });
 
 }

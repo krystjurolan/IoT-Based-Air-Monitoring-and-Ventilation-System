@@ -80,9 +80,9 @@
                       <% data.forEach(data => { %>
                         <tr>
                           <td><%= data.hour %></td>
-                          <td class="text-center"><%= data.avg_temperature %>°C</td>
-                          <td class="text-center"><%= data.avg_humidity %> %RH</td>
-                          <td class="text-right"><%= data.avg_air_quality %>ppm</td>
+                          <td class="text-center"><%= data.avg_temperature.toFixed(2) %>°C</td>
+                          <td class="text-center"><%= data.avg_humidity.toFixed(2) %> %RH</td>
+                          <td class="text-right"><%= data.avg_air_quality.toFixed(2) %>ppm</td>
                         </tr>
                       <% }) %>
                     </tbody>

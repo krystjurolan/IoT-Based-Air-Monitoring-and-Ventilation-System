@@ -1,0 +1,29 @@
+<title>Settings | AMV System</title>
+<%- include('layouts/main_layout') %>
+    <div id="app">
+        <%- include('partials/sidebar') %>
+        <div id="main">
+          <%- include('partials/vertical_nav_bar.ejs') %>
+
+            <script>
+                const liElement = document.getElementById("sidenav-adminsettings");
+                liElement.classList.add('active');
+            
+            </script>
+            
+<div class="page-heading">
+    <h3>Settings</h3>
+</div>
+<div class="page-content">
+</div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+
+    </script>
+
+            <%- include('layouts/footer_layout') %>
+        </div>
+    </div>
+    <%- include('layouts/buttom_layout') %>

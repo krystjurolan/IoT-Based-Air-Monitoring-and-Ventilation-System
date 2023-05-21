@@ -346,7 +346,7 @@ module.exports = function(io) {
     
       switch(airQualityCategory){
         case 1:
-          airQualityMessage = "Air Quality is MODERATE";
+          airQualityMessage = "Air Quality is UNHEALTHY FOR SENSITIVE GROUPS";
           break;
         case 2:
           airQualityMessage = "Air Quality is UNHEALTHY";
@@ -393,7 +393,7 @@ module.exports = function(io) {
         
         io.emit('alertMessage', alertData);
 
-        // if(sendSMSAlerts){
+        if(sendSMSAlerts){
           
           smsTimeout = setTimeout((data)=>{
             // console.log("//////////////////////////////////////////////")
@@ -403,17 +403,22 @@ module.exports = function(io) {
             // console.log("//////////////////////////////////////////////")
   
             let fullMessage;
+            const now = new Date().getDate.toString;
             messageArray.forEach(msg => {
   
               if(fullMessage == undefined){
-                fullMessage = "Air Monitoring and Ventilation System Warning! \n"+ room.room_name +" have unusual IAQ Level/s: \n" + msg.message;
+                fullMessage = "Air Monitoring and Ventilation System Warning! \n"+ "Room: "+ room.room_name + "\nSensor ID: "+ room.device_id +"\nUnusual IAQ Level/s: \n" + msg.message;
               }else{
                 fullMessage += "\n" + msg.message;
               }
+
+              // fullMessage += "\nAs of " + now;
               
           });
+
+          // fullMessage += "\nAs of " + now;
   
-            let mobileno = "+639367438265";
+            let mobileno = "+639367438265";     
             let message = fullMessage;
   
             let smstosend = {
@@ -441,15 +446,15 @@ module.exports = function(io) {
               })
               .catch(function (error) {
                 // res.send("Message Not Sent");
-                console.log("//////////////////////////////////////////////")
+            console.log("//////////////////////////////////////////////")
             console.log("////////////////////////////////////////////// NOT SENT!!!!!!!!!!" );
             console.log("//////////////////////////////////////////////")
             console.log("//////////////////////////////////////////////")
               });
   
-          },15000); //sends action to send SMS through Interval
+          },5000); //sends action to send SMS through Interval
 
-        // }
+        }
 
         
       } else{

@@ -20,7 +20,7 @@
                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.html">Room Monitoring</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Layout Default</li>
+                        <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-label">All Building</li>
                     </ol>
                 </nav>
             </div>
@@ -133,11 +133,13 @@
         const dropdownBuildingSelected = document.getElementById("selectedBuilding");
         const dropdownBuildingList = document.getElementsByClassName("dropdown-item");
         const roomCards = document.getElementById("room-cards");
+        const breadCrumbLabel = document.getElementById("breadcrumb-label");
     
         for (let i = 0; i < dropdownBuildingList.length; i++) {
             dropdownBuildingList[i].addEventListener('click', function() {
                 const buildingId = "" + this.id;
                 dropdownBuildingSelected.textContent = this.textContent;
+                breadCrumbLabel.textContent = this.textContent;
                 for (let j = 0; j < roomCards.children.length; j++) {
                     const roomCard = roomCards.children[j];
                     const roomId = roomCard.id;
@@ -248,9 +250,9 @@
     //   }
       card.innerHTML = `
         <p> </p>
-        <h6><i class="bi bi-thermometer-half"></i> &nbsp Temperature:  ${data.temperature}°C</h6>
-        <h6><i class="bi bi-moisture"></i> &nbsp Humidity:  ${data.humidity}%RH</h6>
-        <h6><i class="bi bi-wind"></i> &nbsp Air Quality:  ${data.airQuality}ppm</h6>
+        <h6><i class="bi bi-thermometer-half"></i> &nbsp Temperature:  ${data.temperature.toFixed(2)}°C</h6>
+        <h6><i class="bi bi-moisture"></i> &nbsp Humidity:  ${data.humidity.toFixed(2)}%RH</h6>
+        <h6><i class="bi bi-wind"></i> &nbsp Air Quality:  ${data.airQuality.toFixed(2)}ppm</h6>
       `;
 
       const cardModalId = 'modal-device-' + data.device_id;

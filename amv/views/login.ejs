@@ -1,39 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/login_style.css" type="text/css">
-    <title>Document</title>
+    <title>Login | AMV System</title>
+    <script src="https://kit.fontawesome.com/c0078485ae.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/login_style.css">
+    <link rel="shortcut icon" href="/assets/images/logo/big_temp_logo.png" type="image/png">
+
+
 </head>
+
 <body>
+    <img src="https://i.ibb.co/XWdPc2X/wave-01.png" alt="" class="wave">
     <div class="container">
-      <h1>Login</h1>
-      <form action="/login" method="post">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" />
-
-        <label for="password">Password</label>
-        <div class="input-group">
-          <input type="password" id="password" name="password" />
-          <span class="show-hide" onclick="togglePassword()">Show</span>
+        <div class="img">
+            <a href="https://buksu.edu.ph/" target="_blank">
+            <img src="/img/logo.jpg"  alt=""></a>
         </div>
-
-        <button type="submit">Login</button>
-      </form>
+        <div class="login-container">
+            <form class="form-login" action="/login" method="post">
+            	<!--<h2>Welcome</h2>-->
+            	<h1>Welcome</h1>
+                <h3>Air Monitoring & Ventilation System</h3>
+                <div class="input-div one">
+                    <div class="i">
+                        <i class="fas fa-user"> </i>
+                    </div>
+                    <div>
+                        <input class="input" type="text" name="username" placeholder="Username">
+                    </div>
+                </div>
+                <div class="input-div pass">
+                    <div class="i">
+                        <i class="fas fa-lock"> </i>
+                    </div>
+                    <div class="div">
+                        <input class="input" type="password" id="password" name="password" placeholder="Password">
+                    </div>
+                </div>
+                <input type="submit" class="btn" >
+                <a href="#">Forgot Password?</a>
+            </form>
+        </div>
     </div>
-    <script>
-      function togglePassword() {
-        var x = document.getElementById("password");
-        if (x.type === "password") {
-          x.type = "text";
-          document.querySelector(".show-hide").textContent = "Hide";
-        } else {
-          x.type = "password";
-          document.querySelector(".show-hide").textContent = "Show";
-        }
-      }
-    </script>
-  </body>
+    <script type="text/javascript" src="/js/login.js"></script>
+
+</body>
 </html>

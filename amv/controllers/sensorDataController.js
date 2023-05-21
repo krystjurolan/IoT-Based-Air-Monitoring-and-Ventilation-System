@@ -215,7 +215,7 @@ const myInterval = setInterval(getData, 10000);
       return 0;
     }
     else if( airQuality >= 100 && airQuality <= 149.99999999 ){
-      console.log('Air Quality is MODERATE: ' + airQuality);
+      console.log('Air Quality is UNHEALTHY FOR SENSITIVE GROUPS: ' + airQuality);
       return 1;
     }
     else if( airQuality >= 150 && airQuality <= 199.99999999 ){
